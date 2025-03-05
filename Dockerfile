@@ -21,8 +21,8 @@ WORKDIR /app
 COPY --from=development /app /app
 
 # Create a non-root user
-RUN groupadd -g 10016 choreo && \
-    useradd -u 10016 -g choreo -s /usr/sbin/nologin choreouser
+RUN groupadd -g 10001 choreo && \
+    useradd -u 10001 -g choreo -s /usr/sbin/nologin choreouser
 
 # Switch to the non-root user
 USER choreouser
