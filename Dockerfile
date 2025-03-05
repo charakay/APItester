@@ -22,7 +22,7 @@ COPY --from=development /app /app
 
 # Create a non-root user
 RUN groupadd -g 10001 choreo && \
-    adduser  --disabled-password  --no-create-home --uid 10001 --ingroup choreo choreouser
+    adduser  --disabled-password  --no-create-home --uid 10021 --ingroup choreo choreouser
    # useradd -u 10001 -g choreo -s /usr/sbin/nologin choreouser
 
 # Switch to the non-root user
