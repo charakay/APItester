@@ -1,11 +1,34 @@
-FROM php:8.2-cli
+# Development Stage
+FROM php:8.2-cli AS development
 
-ARG WEBROOT=/root/www/
+WORKDIR /app
 
+# Copy the PHP script to the container
+COPY . .
 
-RUN mkdir ${WEBROOT}
-COPY index.php ${WEBROOT}
+# Expose port 8080 for the built-in PHP server
+EXPOSE 8080
 
-WORKDIR ${WEBROOT}
+# Start PHP's built-in server for development
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "/app"]
 
-CMD ["php", "-S", "0.0.0.0:8080"]
+# Production Stage
+FROM php:8.2-cli AS production
+
+WORKDIR /app
+
+# Copy only necessary files for production
+COPY --from=development /app /app
+
+# Create a non-root user
+RUN groupadd -g 10016 choreo && \
+    useradd -u 10016 -g choreo -s /usr/sbin/nologin choreouser
+
+# Switch to the non-root user
+USER choreouser
+
+# Expose port for production
+EXPOSE 8080
+
+# Start PHP's built-in server for production
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "/app"]
