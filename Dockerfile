@@ -21,7 +21,7 @@ WORKDIR /app
 COPY --from=development /app /app
 
 # Create a non-root user
-RUN groupadd -g 10001 choreo && \
+RUN groupadd -g 10021 choreo && \
     adduser  --disabled-password  --no-create-home --uid 10021 --ingroup choreo choreouser
    # useradd -u 10001 -g choreo -s /usr/sbin/nologin choreouser
 
