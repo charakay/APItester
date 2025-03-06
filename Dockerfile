@@ -7,7 +7,9 @@ WORKDIR /app
 COPY index.php .
 
 # Create a non-root user
-RUN useradd -M -N -r -s /usr/sbin/nologin choreouser
+#RUN useradd -M -N -r -s /usr/sbin/nologin choreouser
+RUN groupadd -g 10021 choreo && \
+    adduser --disabled-password --no-create-home --uid 10001 --ingroup choreo choreouser
 
 # Switch to the non-root user
 USER choreouser
