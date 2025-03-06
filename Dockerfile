@@ -1,24 +1,16 @@
 # Development Stage
-FROM php:8.2-cli AS development
+FROM php:8.2-cli 
 
 WORKDIR /app
 
 # Copy the PHP script to the container
-COPY . .
+COPY index.php /app
 
 # Expose port 8080 for the built-in PHP server
 EXPOSE 8080
 
 # Start PHP's built-in server for development
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "/app"]
-
-# Production Stage
-FROM php:8.2-cli AS production
-
-WORKDIR /app
-
-# Copy only necessary files for production
-COPY --from=development /app /app
+#CMD ["php", "-S", "0.0.0.0:8080"]
 
 # Create a non-root user
 RUN groupadd -g 10021 choreo && \
@@ -28,8 +20,8 @@ RUN groupadd -g 10021 choreo && \
 # Switch to the non-root user
 USER choreouser
 
+# Start PHP's built-in server for production
+CMD ["php", "-S", "0.0.0.0:8080"]
+
 # Expose port for production
 EXPOSE 8080
-
-# Start PHP's built-in server for production
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "/app"]
