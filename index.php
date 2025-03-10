@@ -29,13 +29,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["api_url"])) {
         $error = curl_error($ch);
         curl_close($ch);
 
+        // Log output to stdout
         if ($http_code !== 200) {
-            $error = "Failed to fetch API response. HTTP Code: $http_code";
+            $error_message = "Failed to fetch API response. HTTP Code: $http_code";
+            error_log($error_message); // Log to stdout (or file depending on server config)
         } elseif ($response === false) {
-            $error = "cURL Error: $error";
+            $error_message = "cURL Error: $error";
+            error_log($error_message); // Log to stdout
+        } else {
+            // Log the successful response to stdout
+            error_log("API Response: " . substr($response, 0, 200)); // Limit response size for readability
         }
     } else {
-        $error = "Invalid URL.";
+        $error_message = "Invalid URL.";
+        error_log($error_message); // Log invalid URL to stdout
     }
 }
 ?>
@@ -66,8 +73,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["api_url"])) {
     <?php if (!empty($response)) : ?>
         <h3>Response:</h3>
         <pre><?php echo htmlspecialchars($response, ENT_QUOTES, 'UTF-8'); ?></pre>
-    <?php elseif (!empty($error)) : ?>
-        <p style="color: red;">Error: <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+    <?php elseif (!empty($error_message)) : ?>
+        <p style="color: red;">Error: <?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?></p>
     <?php endif; ?>
 </body>
 </html>
