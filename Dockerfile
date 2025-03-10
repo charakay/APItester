@@ -1,38 +1,27 @@
-# Development stage
-FROM python:alpine AS development
+# Development Stage
+FROM php:8.2-cli 
 
-WORKDIR /python-docker
+WORKDIR /app
 
-# Copy the requirements file and install dependencies
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+# Copy the PHP script to the container
+COPY index.php /app
 
-# Copy the application code
-COPY . .
-RUN ls
+# Expose port 8080 for the built-in PHP server
+EXPOSE 8080
 
-# Run tests
-CMD ["python3", "test_app.py", "-v"]
+# Start PHP's built-in server for development
+#CMD ["php", "-S", "0.0.0.0:8080"]
 
-# Production stage
-FROM python:alpine AS production
+# Create a non-root user
+RUN groupadd -g 10021 choreo && \
+    adduser  --disabled-password  --no-create-home --uid 10021 --ingroup choreo choreouser
+   # useradd -u 10001 -g choreo -s /usr/sbin/nologin choreouser
 
-WORKDIR /python-docker
+# Switch to the non-root user
+USER choreouser
 
-# Copy only the necessary files for production
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+# Start PHP's built-in server for production
+CMD ["php", "-S", "0.0.0.0:8080"]
 
-COPY . .
-
-# Create a new user with UID 10016
-RUN addgroup -g 10016 choreo && \
-    adduser  --disabled-password  --no-create-home --uid 10016 --ingroup choreo choreouser
-
-# Switch to the new user
-USER 10016
-
-EXPOSE 5000
-
-# Start the Flask application
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Expose port for production
+EXPOSE 8080
