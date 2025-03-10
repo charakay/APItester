@@ -9,8 +9,16 @@ COPY index.php /app
 EXPOSE 8080
 
 # Create a non-root user
-RUN groupadd -g 10021 choreo && \
-    adduser --disabled-password --no-create-home --uid 10021 --ingroup choreo choreouser
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid 10014 \
+    "choreo"
+# Use the above created unprivileged user
+USER 10014
 
 # Switch to the non-root user
 USER choreouser
