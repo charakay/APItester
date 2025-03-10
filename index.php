@@ -1,7 +1,9 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["api_url"])) {
     $api_url = filter_var($_POST["api_url"], FILTER_SANITIZE_URL);
-    
+    $method = $_POST["method"] ?? "GET"; // Default to GET if no method is selected
+    $bearer_token = $_POST["bearer_token"] ?? ''; // Optional Bearer token
+
     if (filter_var($api_url, FILTER_VALIDATE_URL)) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api_url);
@@ -9,11 +11,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["api_url"])) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         
+        // Set HTTP method
+        if ($method === "POST") {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_POST)); // If POST, send form data
+        }
+        
+        // Add Bearer Token for Authorization if provided
+        if (!empty($bearer_token)) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: Bearer " . $bearer_token
+            ]);
+        }
+
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-        
+
         if ($http_code !== 200) {
             $error = "Failed to fetch API response. HTTP Code: $http_code";
         } elseif ($response === false) {
@@ -34,9 +49,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["api_url"])) {
 <body>
     <h1>API Caller</h1>
     <form method="POST">
-        <input type="text" name="api_url" placeholder="Enter API Endpoint URI" required>
+        <input type="text" name="api_url" placeholder="Enter API Endpoint URI" required><br><br>
+        
+        <label for="method">Select Method:</label>
+        <select name="method" id="method">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+        </select><br><br>
+        
+        <label for="bearer_token">Bearer Token (Optional):</label>
+        <input type="text" name="bearer_token" placeholder="Enter Bearer Token"><br><br>
+        
         <button type="submit">Call API</button>
     </form>
+    
     <?php if (!empty($response)) : ?>
         <h3>Response:</h3>
         <pre><?php echo htmlspecialchars($response, ENT_QUOTES, 'UTF-8'); ?></pre>
