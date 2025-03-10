@@ -21,7 +21,7 @@ RUN adduser \
 USER 10014
 
 # Switch to the non-root user
-USER choreo
+#USER choreo
 
 # Start PHP's built-in server for production
 CMD ["php", "-S", "0.0.0.0:8080"]
